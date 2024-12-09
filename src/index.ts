@@ -33,6 +33,7 @@ const plugin = createPlugin<Options | undefined>((
 
   return {
     name: 'ignore-attributes',
+    enforce: 'post',
     resolveVirtualCode({ ast, codes, source, languageId }) {
       if (!['jsx', 'tsx'].includes(languageId))
         return
