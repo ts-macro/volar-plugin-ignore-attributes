@@ -1,5 +1,5 @@
 import { replaceSourceRange } from 'muggle-string'
-import { allCodeFeatures, createPlugin } from 'ts-macro'
+import { createPlugin } from 'ts-macro'
 import { getRules } from './rule'
 
 interface Options {
@@ -65,12 +65,10 @@ const plugin = createPlugin<Options | undefined>((
                 codes,
                 source,
                 start,
-                attribute.end,
-                `{...{`,
-                [nameText, source, start, allCodeFeatures],
-                ':',
-                attribute.initializer ? [getText(attribute.initializer, ast, ts), source, getStart(attribute.initializer, ast, ts), allCodeFeatures] : `""`,
-                `}}`,
+                attribute.name.end + (attribute.initializer ? 1 : 0),
+                'ignore-',
+                nameText,
+                attribute.initializer ? '=' : '',
               )
             }
           }
