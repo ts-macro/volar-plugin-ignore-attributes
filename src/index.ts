@@ -1,5 +1,5 @@
 import { replaceSourceRange } from 'muggle-string'
-import { createPlugin } from 'ts-macro'
+import { allCodeFeatures, createPlugin } from 'ts-macro'
 import { getRules } from './rule'
 
 interface Options {
@@ -14,22 +14,14 @@ function isMatched(rule: string | RegExp, name: string) {
     : rule.test(name)
 }
 
-function toRegex(rule: string | RegExp) {
-  let _rule = rule
-  if (typeof _rule === 'string') {
-    _rule = new RegExp(_rule)
-  }
-  return _rule
-}
-
 const plugin = createPlugin<Options | undefined>((
   { ts, vueCompilerOptions },
   options = vueCompilerOptions?.ignoreAttributes ?? {},
 ) => {
   const cache = new Map<string, boolean>()
   const rules = getRules(options.prefix)
-  rules.push(...options.include?.map(toRegex) || [])
-  const exclude = [/^v-.*/, ...options.exclude?.map(toRegex) || []]
+  rules.push(...options.include || [])
+  const exclude = [/^v-.*/, ...options.exclude || []]
 
   return {
     name: 'ignore-attributes',
@@ -59,19 +51,26 @@ const plugin = createPlugin<Options | undefined>((
             const hasCached = cache.has(attributeName)
             const result = hasCached
               ? cache.get(attributeName)!
-              : rules.some((rule) => {
-                const result = isMatched(rule, attributeName)
-                return result
-              })
+              : rules.some(rule => isMatched(rule, attributeName))
             if (!hasCached)
               cache.set(attributeName, result)
 
             if (result) {
+              const nameText = getText(attribute.name, ast, ts)
+              if (nameText.includes('-')) {
+                continue
+              }
+              const start = getStart(attribute, ast, ts)
               replaceSourceRange(
                 codes,
                 source,
-                getStart(attribute, ast, ts),
+                start,
                 attribute.end,
+                `{...{`,
+                [nameText, source, start, allCodeFeatures],
+                ':',
+                attribute.initializer ? [getText(attribute.initializer, ast, ts), source, getStart(attribute.initializer, ast, ts), allCodeFeatures] : `""`,
+                `}}`,
               )
             }
           }

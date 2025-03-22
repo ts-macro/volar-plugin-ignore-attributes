@@ -85,6 +85,7 @@ const pseudoPrefix = [
 ]
 
 const separateEnabled = [
+  'i',
   'align',
   'animate',
   'backdrop',
@@ -156,7 +157,7 @@ const basicAttributes = [
   ...separateEnabled,
 ].join('|')
 
-export function getRules(prefix = '') {
+export function getRules(prefix = ''): (RegExp | string)[] {
   return [
     new RegExp(`^${prefix}((${pseudoPrefixAttributes}):)?((${basicAttributes})|(${stringNumberAttributes}))$`),
   ]
