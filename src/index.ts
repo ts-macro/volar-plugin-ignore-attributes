@@ -1,4 +1,3 @@
-import { replaceSourceRange } from 'muggle-string'
 import { createPlugin } from 'ts-macro'
 import { getRules } from './rule'
 
@@ -26,8 +25,8 @@ const plugin = createPlugin<Options | undefined>((
   return {
     name: 'ignore-attributes',
     enforce: 'post',
-    resolveVirtualCode({ ast, codes, source, languageId }) {
-      if (!['jsx', 'tsx'].includes(languageId))
+    resolveVirtualCode({ ast, codes, lang }) {
+      if (!['jsx', 'tsx'].includes(lang))
         return
 
       function walk(
@@ -61,9 +60,7 @@ const plugin = createPlugin<Options | undefined>((
                 continue
               }
               const start = getStart(attribute, ast, ts)
-              replaceSourceRange(
-                codes,
-                source,
+              codes.replaceRange(
                 start,
                 attribute.name.end + (attribute.initializer ? 1 : 0),
                 'ignore-',
