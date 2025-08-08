@@ -1,7 +1,7 @@
 {
   "name": "volar-plugin-ignore-attributes",
   "type": "module",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "packageManager": "pnpm@10.14.0",
   "description": "A volar plugin to ignore unocss attributes for JSX.",
   "author": "zhiyuanzmj <zhiyuanzmj@gmail.com>",
